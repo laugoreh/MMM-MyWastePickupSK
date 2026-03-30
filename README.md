@@ -38,6 +38,10 @@ The module reads your waste pickup schedule from a CSV file. The CSV file should
       <td><code>limitTo</code></td>
       <td>Limit the display to the specified number of pickups.<br /><br /><strong>Number</strong><br />Default: <code>99</code>.</td>
     </tr>
+    <tr>
+      <td><code>dateFormat</code></td>
+      <td>Moment.js format string used for pickup dates other than Today and Tomorrow.<br /><br /><strong>String</strong><br />Default: <code>D. MMM</code>.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -50,7 +54,8 @@ The module reads your waste pickup schedule from a CSV file. The CSV file should
   header: 'My Waste Collection',
   config: {
     weeksToDisplay: 2,
-    limitTo: 99
+    limitTo: 99,
+    dateFormat: 'D. MMM'
   }
 }
 ```CSV File Format

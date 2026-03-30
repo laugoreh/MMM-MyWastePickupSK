@@ -2,7 +2,8 @@ Module.register('MMM-MyWastePickup', {
 
   defaults: {
     weeksToDisplay: 2,
-    limitTo: 99
+    limitTo: 99,
+    dateFormat: "D. MMM"
   },
 
   // Define required styles.
@@ -94,10 +95,8 @@ Module.register('MMM-MyWastePickup', {
         dateContainer.innerHTML = this.translate("TODAY");
       } else if (moment(today).add(1, "days").isSame(pickUpDate)) {
         dateContainer.innerHTML = this.translate("TOMORROW");
-      } else if (moment(today).add(7, "days").isAfter(pickUpDate)) {
-        dateContainer.innerHTML = pickUpDate.format("dddd");
       } else {
-        dateContainer.innerHTML = pickUpDate.format("MMMM D");
+        dateContainer.innerHTML = pickUpDate.format(this.config.dateFormat);
       }
 
       pickupContainer.appendChild(dateContainer);
