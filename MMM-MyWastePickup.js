@@ -55,8 +55,25 @@ Module.register('MMM-MyWastePickup', {
     return(svg);
   },   
 
+  getRelativeLabel: function(language, key, fallback) {
+    var localeData = moment.localeData(language);
+    var calendarFormat = localeData && localeData._calendar ? localeData._calendar[key] : null;
+
+    if (!calendarFormat || typeof calendarFormat !== "string") {
+      return fallback;
+    }
+
+    return calendarFormat
+      .replace(/\[|\]/g, "")
+      .replace(/LTS?/g, "")
+      .replace(/\s+(at|o)$/i, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  },
+
   getDom: function() {
     var wrapper = document.createElement("div");
+    var language = ((this.config.language || config.language || "en") + "").toLowerCase();
 
     if (this.initializing == true) {
       wrapper.innerHTML = this.translate("LOADING");
@@ -90,11 +107,13 @@ Module.register('MMM-MyWastePickup', {
 
       //determine how close pickup day is and formats accordingly.
       var today = moment().startOf("day");
-      var pickUpDate = moment(pickup.pickupDate);
+      var pickUpDate = moment(pickup.pickupDate).locale(language);
       if (today.isSame(pickUpDate)) {
-        dateContainer.innerHTML = this.translate("TODAY");
+        dateContainer.innerHTML = this.getRelativeLabel(language, "sameDay", "today");
       } else if (moment(today).add(1, "days").isSame(pickUpDate)) {
-        dateContainer.innerHTML = this.translate("TOMORROW");
+        dateContainer.innerHTML = this.getRelativeLabel(language, "nextDay", "tomorrow");
+      } else if (moment(today).add(7, "days").isAfter(pickUpDate)) {
+        dateContainer.innerHTML = pickUpDate.format("dddd");
       } else {
         dateContainer.innerHTML = pickUpDate.format(this.config.dateFormat);
       }

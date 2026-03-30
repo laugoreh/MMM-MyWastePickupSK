@@ -40,10 +40,12 @@ The module reads your waste pickup schedule from a CSV file. The CSV file should
     </tr>
     <tr>
       <td><code>dateFormat</code></td>
-      <td>Moment.js format string used for pickup dates other than Today and Tomorrow.<br /><br /><strong>String</strong><br />Default: <code>D. MMM</code>.</td>
+      <td>Moment.js format string used for pickup dates other than Today, Tomorrow, and Day after tomorrow.<br /><br /><strong>String</strong><br />Default: <code>D. MMM</code>.</td>
     </tr>
   </tbody>
 </table>
+
+Month and weekday names come from the active Moment.js locale. Slovak relative labels use the built-in locale where available, with <code>pozajtra</code> added explicitly for the two-day case.
 
 ### Example config
 
