@@ -11,11 +11,8 @@ module.exports = NodeHelper.create({
 
     this.schedule = null;
 
-    //new schedule file can be downloaded at
-    //https://www.toronto.ca/city-government/data-research-maps/open-data/open-data-catalogue/garbage-and-recycling/#8e932504-cabb-71b1-b23a-6cf504f7c474
-    this.scheduleCSVFile = this.path + "/schedule.csv";
-
-    this.scheduleCustomCSVFile = this.path + "/schedule_custom.csv";
+    // Load the waste pickup schedule from CSV file
+    this.scheduleCSVFile = this.path + "/odpady.csv";
 
   },
 
@@ -26,12 +23,7 @@ module.exports = NodeHelper.create({
     if (this.schedule == null) {
       //not yet setup. Load and parse the data file; set up variables.
 
-      var scheduleFile = this.scheduleCSVFile;
-      if (payload.collectionCalendar == "Custom") {
-        scheduleFile = this.scheduleCustomCSVFile;
-      }
-
-      fs.readFile(scheduleFile, "utf8", function(err, rawData) {
+      fs.readFile(this.scheduleCSVFile, "utf8", function(err, rawData) {
         if (err) throw err;
         parse(rawData, {delimiter: ",", columns: true, ltrim: false}, function(err, parsedData) {
           if (err) throw err;
@@ -51,28 +43,13 @@ module.exports = NodeHelper.create({
 
     this.schedule.forEach( function(obj) {
 
-      //convert date strings to moment.js Date objects
+      // Convert date strings to moment.js Date objects
+      // Expected format: MM/DD/YYYY
+      obj.pickupDate = moment(obj["Start Date"], "MM/DD/YYYY");
 
-      //UPDATE Nov 2021.  Date format has changed in Toronto.ca data files.
-      //So we do a check for the format first and convert to a Moment object
-      //accordingly, while maintaining compatibility for people using the
-      //custom calendar
-      if (obj.WeekStarting.indexOf("/") != -1 ) {
-        obj.pickupDate = moment(obj.WeekStarting, "MM/DD/YY");
-      } else if (obj.WeekStarting.indexOf("-") != -1 ) {
-        obj.pickupDate = moment(obj.WeekStarting, "YYYY-MM-DD");
-      }
+      // Map waste type based on Subject field
+      obj.Type = obj.Subject;
 
-      // to do:
-      // check if pickup date lands on a holiday.
-      // If so, move to next day
-
-      //reassign strings to booleans for particular waste type
-      obj.GreenBin = (obj.GreenBin == "0" ? false : true);
-      obj.Garbage = (obj.Garbage == "0" ? false : true);
-      obj.Recycling = (obj.Recycling == "0" ? false : true);
-      obj.YardWaste = (obj.YardWaste == "0" ? false : true);
-      obj.ChristmasTree = (obj.ChristmasTree == "0" ? false : true);
     });
 
   },
@@ -83,9 +60,13 @@ module.exports = NodeHelper.create({
 
     //find info for next pickup dates
     var nextPickups = this.schedule.filter(function (obj) {
-      return obj.Calendar == payload.collectionCalendar &&
-        obj.pickupDate.isSameOrAfter(start) && 
+      return obj.pickupDate.isSameOrAfter(start) && 
         obj.pickupDate.isBefore(end);
+    });
+
+    // Sort by date
+    nextPickups.sort(function(a, b) {
+      return a.pickupDate - b.pickupDate;
     });
 
     this.sendSocketNotification('MMM-MYWASTEPICKUP-RESPONSE' + payload.instanceId, nextPickups);

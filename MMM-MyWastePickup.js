@@ -1,23 +1,9 @@
 Module.register('MMM-MyWastePickup', {
 
   defaults: {
-    collectionCalendar: "Tuesday1",
     weeksToDisplay: 2,
     limitTo: 99
   },
-
-  validCollectionCalendars: [
-    "MondayNight",
-    "Tuesday1",
-    "Tuesday2",
-    "Wednesday1",
-    "Wednesday2",
-    "Thursday1",
-    "Thursday2",
-    "Friday1",
-    "Friday2",
-    "Custom"
-  ],
 
   // Define required styles.
   getStyles: function () {
@@ -30,10 +16,6 @@ Module.register('MMM-MyWastePickup', {
     this.nextPickups = [];
     this.initializing = true;
 
-    if (this.validCollectionCalendars.indexOf(this.config.collectionCalendar) == -1) {
-      this.config.collectionCalendar = "Tuesday1";
-    }
-
     this.getPickups();
 
     this.timer = null;
@@ -45,7 +27,7 @@ Module.register('MMM-MyWastePickup', {
     clearTimeout(this.timer);
     this.timer = null;
 
-    this.sendSocketNotification("MMM-MYWASTEPICKUP-GET", {collectionCalendar: this.config.collectionCalendar, weeksToDisplay: this.config.weeksToDisplay, instanceId: this.identifier});
+    this.sendSocketNotification("MMM-MYWASTEPICKUP-GET", {weeksToDisplay: this.config.weeksToDisplay, instanceId: this.identifier});
 
     //set alarm to check again tomorrow
     var self = this;
@@ -120,27 +102,12 @@ Module.register('MMM-MyWastePickup', {
 
       pickupContainer.appendChild(dateContainer);
 
-      //add icons 
-      var iconContainer = document.createElement("span");
-      iconContainer.classList.add("waste-pickup-icon-container");
+      //add waste type
+      var typeContainer = document.createElement("span");
+      typeContainer.classList.add("waste-pickup-type");
+      typeContainer.innerHTML = pickup.Type;
 
-      if (pickup.GreenBin) {
-        iconContainer.appendChild(this.svgIconFactory("compost"));
-      }
-      if (pickup.Garbage) {
-        iconContainer.appendChild(this.svgIconFactory("garbage"));
-      }
-      if (pickup.Recycling) {
-        iconContainer.appendChild(this.svgIconFactory("recycle"));
-      }
-      if (pickup.YardWaste) {
-        iconContainer.appendChild(this.svgIconFactory("yard_waste"));
-      }
-      if (pickup.ChristmasTree) {
-        iconContainer.appendChild(this.svgIconFactory("christmas_tree"));
-      }
-
-      pickupContainer.appendChild(iconContainer);
+      pickupContainer.appendChild(typeContainer);
 
       wrapper.appendChild(pickupContainer);
 

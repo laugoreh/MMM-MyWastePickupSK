@@ -2,7 +2,7 @@
 
 This a module for [MagicMirror](https://github.com/MichMich/MagicMirror).
 
-This displays your schedule for Toronto curbside waste pickup.
+This displays your waste pickup schedule from a CSV file.
 
 ![Screenshot](/../screenshots/screenshot.png?raw=true "Screenshot")
 
@@ -14,8 +14,13 @@ This displays your schedule for Toronto curbside waste pickup.
 
 ## Configuration
 
-Go to https://www.toronto.ca/services-payments/recycling-organics-garbage/houses/collection-schedule/curbside-collection-maps/
-to determine your collection calendar, and configure it as below:
+The module reads your waste pickup schedule from a CSV file. The CSV file should have the following columns:
+- **Subject** - The type of waste pickup (e.g., "Garbage", "Recycling")
+- **Start Date** - The pickup date in `MM/DD/YYYY` format
+- **All Day Event** - Set to `True` (currently unused)
+- **Description** - Description of the pickup (optional)
+
+### Configuration Options
 
 <table>
   <thead>
@@ -26,66 +31,46 @@ to determine your collection calendar, and configure it as below:
   </thead>
   <tbody>
     <tr>
-      <td><code>collectionCalendar</code></td>
-      <td><strong>REQUIRED</strong> The schedule for your curbside pickup, as dertmined above.<br><br><strong>String</strong> <code>Array</code><br />Valid values are <code>MondayNight</code>, <code>Tuesday1</code>, <code>Tuesday2</code>, <code>Wednesday1</code>, <code>Wednesday2</code>, <code>Thursday1</code>, <code>Thursday2</code>, <code>Friday1</code>, or <code>Friday2</code>.<br />It is also possible to specify <code>Custom</code> in case you want to use your own custom pickup schedule.  See below for more information about using your own schedule.<br /><br />Any other value will be ignored and the module will default to <code>Tuesday1</code>.</td>
-    </tr>
-    <tr>
       <td><code>weeksToDisplay</code></td>
       <td>How many weeks into the future to show collection dates.<br /><br /><strong>Number</strong><br />Default: <code>2</code>.</td>
     </tr>
     <tr>
       <td><code>limitTo</code></td>
-      <td>Limit the display to the spcified number of pickups.<br /><br /><strong>Number</strong><br />Default: <code>99</code>.</td>
+      <td>Limit the display to the specified number of pickups.<br /><br /><strong>Number</strong><br />Default: <code>99</code>.</td>
     </tr>
   </tbody>
 </table>
 
 ### Example config
 
-```
+```javascript
 {
   module: 'MMM-MyWastePickup',
   position: 'top_left',
   header: 'My Waste Collection',
   config: {
-    collectionCalendar: 'Tuesday1'
+    weeksToDisplay: 2,
+    limitTo: 99
   }
-},
+}
+```CSV File Format
+
+Place your waste pickup schedule in a CSV file named `odpady.csv` in the module directory.
+
+Example CSV file:
+```
+Subject,Start Date,All Day Event,Description
+Garbage,04/01/2026,True,Black bin collection
+Recycling,04/02/2026,True,Yellow/Blue bin collection
+Garbage,04/15/2026,True,Black bin collection
+Recycling,05/07/2026,True,Yellow/Blue bin collection
 ```
 
-## Note
+The module will automatically parse this file and display upcoming pickups based on the configured number of weeks.
 
-This works off of a static CSV file obtained from the city of Toronto's website here:
-https://open.toronto.ca/dataset/solid-waste-pickup-schedule/
+## Updating the Schedule
 
-As such, this module currently only has data until the end of the year 2021.In 2022 and subsequent years, download the new
-schedule and copy it over the existing schedule.csv file in this module's directory.
-
-
-
-## Using Your Own Custom Schedule
-
-If you live outside of Toronto and you'd like to use this module, you can create your own schedule to use with this module.
-
-1. First, in your config specify `collectionCalendar: 'Custom'`.
-2. Create a CSV based on the following template:
-
-```
-Calendar,WeekStarting,GreenBin,Garbage,Recycling,YardWaste,ChristmasTree
-Custom,03/07/18,1,0,1,0,0
-Custom,03/14/18,1,1,1,0,0
-Custom,03/21/18,1,0,1,0,0
-Custom,03/28/18,1,1,1,0,0
-```
-Add lines for each pickup date as needed
-
-The following points are very important:
-* The CSV file must be delimited using commas
-* The first line containing the headers must appear exactly as above.  If the module is stuck on "Loading..." after you've created your custom schedule, double-check that none of the headers are misspelled.
-* You MUST use the schedule name `Custom` at the beginning of each line.
-* The date format needs to be specified as `MM/DD/YY` (e.g.: 05/28/18 for 28-May-2018)
-* The last five fields of each line specify whether the particular waste product is scheduled to be picked up on the given date. A value of `0` means no pick up. A value of ANYTHING ELSE means the product will be picked up.  Using the first pick up date entry in the template above, `1,0,1,0,0` means that `GreenBin` and `Recycling` will be picked up on that date, while `Garbage`, `YardWaste`, and `ChristmasTree` will not be picked up.
-
+Simply replace the `odpady.csv` file with your updated waste pickup schedule. The module will automatically reload the data.
 3. Save the file as `schedule_custom.csv` in the `MMM-MyWasteCollection` directory.
 4. Restart Magic Mirror
 
