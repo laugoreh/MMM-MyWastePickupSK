@@ -42,6 +42,14 @@ The module reads your waste pickup schedule from a CSV file. The CSV file should
       <td><code>dateFormat</code></td>
       <td>Moment.js format string used for pickup dates other than Today, Tomorrow, and Day after tomorrow.<br /><br /><strong>String</strong><br />Default: <code>D. MMM</code>.</td>
     </tr>
+    <tr>
+      <td><code>showIcons</code></td>
+      <td>Show an icon before the waste type label when the module can match the pickup type to a sprite symbol.<br /><br /><strong>Boolean</strong><br />Default: <code>true</code>.</td>
+    </tr>
+    <tr>
+      <td><code>iconMap</code></td>
+      <td>Optional mapping of waste type labels to sprite symbol IDs such as <code>garbage</code>, <code>recycle</code>, <code>compost</code>, <code>yard_waste</code>, and <code>christmas_tree</code>.<br /><br /><strong>Object</strong></td>
+    </tr>
   </tbody>
 </table>
 
@@ -57,7 +65,12 @@ Month and weekday names come from the active Moment.js locale. Slovak relative l
   config: {
     weeksToDisplay: 2,
     limitTo: 99,
-    dateFormat: 'D. MMM'
+    dateFormat: 'D. MMM',
+    showIcons: true,
+    iconMap: {
+      'Vývoz komunálu': 'garbage',
+      'Zber papier a plasty': 'recycle'
+    }
   }
 }
 ```CSV File Format
@@ -74,6 +87,8 @@ Recycling,05/07/2026,True,Yellow/Blue bin collection
 ```
 
 The module will automatically parse this file and display upcoming pickups based on the configured number of weeks.
+
+The bundled SVG sprite in [icon_sprite.svg](icon_sprite.svg) currently includes these symbol IDs: <code>garbage</code>, <code>recycle</code>, <code>compost</code>, <code>yard_waste</code>, and <code>christmas_tree</code>.
 
 ## Updating the Schedule
 

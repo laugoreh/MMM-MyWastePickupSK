@@ -16,6 +16,21 @@
 
 .MMM-MyWastePickup .pickup-container .waste-pickup-type {
   color: #AAA;
+  display: inline-flex;
+  align-items: center;
   font-size: 18px;
   margin-left: 20px;
+}
+
+.MMM-MyWastePickup .pickup-container .waste-pickup-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  flex: 0 0 auto;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.MMM-MyWastePickup .pickup-container .waste-pickup-label {
+  display: inline-block;
 }

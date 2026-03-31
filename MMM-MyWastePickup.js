@@ -2,7 +2,17 @@ Module.register("MMM-MyWastePickup", {
   defaults: {
     weeksToDisplay: 2,
     limitTo: 99,
-    dateFormat: "D. MMM"
+    dateFormat: "D. MMM",
+    showIcons: true,
+    iconMap: {
+      "garbage": "garbage",
+      "recycling": "recycle",
+      "compost": "compost",
+      "yard waste": "yard_waste",
+      "christmas tree": "christmas_tree",
+      "vyvoz komunalu": "garbage",
+      "zber papier a plasty": "recycle"
+    }
   },
 
   getStyles() {
@@ -68,6 +78,48 @@ Module.register("MMM-MyWastePickup", {
       .trim();
   },
 
+  normalizeWasteType(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+  },
+
+  getWasteIconGlyph(type) {
+    const normalizedType = this.normalizeWasteType(type);
+    const normalizedMap = Object.entries(this.config.iconMap || {}).reduce((result, [key, value]) => {
+      result[this.normalizeWasteType(key)] = value;
+      return result;
+    }, {});
+
+    if (normalizedMap[normalizedType]) {
+      return normalizedMap[normalizedType];
+    }
+
+    if (/(papier|plast|recycl)/.test(normalizedType)) {
+      return "recycle";
+    }
+
+    if (/(komunal|garbage|mixed|residual|general)/.test(normalizedType)) {
+      return "garbage";
+    }
+
+    if (/(bio|compost)/.test(normalizedType)) {
+      return "compost";
+    }
+
+    if (/(yard|garden|grass|leaf|branch|green)/.test(normalizedType)) {
+      return "yard_waste";
+    }
+
+    if (/(christmas|viano)/.test(normalizedType)) {
+      return "christmas_tree";
+    }
+
+    return null;
+  },
+
   getPickupDateLabel(pickupDate, language) {
     const today = moment().startOf("day");
     const tomorrow = moment(today).add(1, "days");
@@ -118,7 +170,20 @@ Module.register("MMM-MyWastePickup", {
 
       const typeContainer = document.createElement("span");
       typeContainer.classList.add("waste-pickup-type");
-      typeContainer.innerHTML = pickup.Type;
+
+      if (this.config.showIcons) {
+        const glyph = this.getWasteIconGlyph(pickup.Type);
+
+        if (glyph) {
+          typeContainer.appendChild(this.svgIconFactory(glyph));
+        }
+      }
+
+      const labelContainer = document.createElement("span");
+      labelContainer.classList.add("waste-pickup-label");
+      labelContainer.textContent = pickup.Type;
+      typeContainer.appendChild(labelContainer);
+
       pickupContainer.appendChild(typeContainer);
 
       wrapper.appendChild(pickupContainer);
